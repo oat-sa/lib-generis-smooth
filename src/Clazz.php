@@ -19,12 +19,19 @@
  *               2009-2012 (update and modification) Public Research Centre Henri Tudor (under the project TAO-SUSTAIN & TAO-DEV);
  *               2012-2014 (update and modification) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
+namespace oat\generis\altsmooth;
+
+use \core_kernel_persistence_ClassInterface;
+use \core_kernel_classes_Resource;
+use \core_kernel_classes_Property;
+use \core_kernel_classes_Class;
+
 
 /**
  * Short description of class core_kernel_persistence_smoothsql_Class
  *
  */
-class core_kernel_persistence_smoothsql_Class extends core_kernel_persistence_smoothsql_Resource implements core_kernel_persistence_ClassInterface
+class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_kernel_persistence_ClassInterface
 {
 
     /**
