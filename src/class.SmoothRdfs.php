@@ -18,7 +18,10 @@
  *
  */
 
+namespace oat\generis\altsmooth;
+
 use oat\generis\model\data\RdfsInterface;
+
 
 /**
  * Implementation of the RDFS interface for the smooth sql driver

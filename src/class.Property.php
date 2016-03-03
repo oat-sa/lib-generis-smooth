@@ -20,6 +20,12 @@
  * 
  */
 
+namespace oat\generis\altsmooth;
+
+use \core_kernel_classes_Resource;
+use \core_kernel_classes_Property;
+use \core_kernel_classes_Class;
+
 /**
  * Short description of class core_kernel_persistence_smoothsql_Property
  *

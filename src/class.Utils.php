@@ -20,6 +20,10 @@
  *               2012-2014 (update and modification) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
 
+namespace oat\generis\altsmooth;
+
+use \core_kernel_classes_Resource;
+
 /**
  * Utility class for package core\kernel\persistence\smoothsql.
  * 

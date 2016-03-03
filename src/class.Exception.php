@@ -20,6 +20,8 @@
  * 
  */
 
+namespace oat\generis\altsmooth;
+
 /**
  * Short description of class core_kernel_persistence_smoothsql_Exception
  *

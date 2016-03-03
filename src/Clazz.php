@@ -41,10 +41,10 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
     public function getSubClasses( core_kernel_classes_Class $resource, $recursive = false)
     {
         $returnValue = array();
-        
+
         $sqlQuery = 'SELECT subject FROM statements WHERE predicate = ? and '.$this->getPersistence()->getPlatForm()->getObjectTypeCondition() .' = ?';
         $sqlResult = $this->getPersistence()->query($sqlQuery, array(RDFS_SUBCLASSOF, $resource->getUri()));
-        
+
         while ($row = $sqlResult->fetch()) {
             $subClass = new core_kernel_classes_Class($row['subject']);
             $returnValue[$subClass->getUri()] = $subClass;
@@ -53,7 +53,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
             	$returnValue = array_merge($returnValue, $plop);
             }
         }
-        
+
         return (array) $returnValue;
     }
 
@@ -64,19 +64,19 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
     public function isSubClassOf( core_kernel_classes_Class $resource,  core_kernel_classes_Class $parentClass)
     {
         $returnValue = false;
-        
+
         $query = 'SELECT object FROM statements WHERE subject = ? AND predicate = ? AND ' . $this->getPersistence()->getPlatForm()->getObjectTypeCondition() . ' = ?';
         $result = $this->getPersistence()->query($query, array(
             $resource->getUri(),
             RDFS_SUBCLASSOF,
             $parentClass->getUri()
         ));
-        
+
         while ($row = $result->fetch()) {
             $returnValue =  true;
             break;
         }
-        
+
         if (!$returnValue) {
             $parentSubClasses = $parentClass->getSubClasses(true);
             foreach ($parentSubClasses as $subClass) {
@@ -86,7 +86,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
                 }
             }
         }
-        
+
         return $returnValue;
     }
 
@@ -97,7 +97,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
     public function getParentClasses( core_kernel_classes_Class $resource, $recursive = false)
     {
         $returnValue = array();
-		
+
         $sqlQuery = 'SELECT object FROM statements WHERE subject = ?  AND predicate = ?';
 
 		$sqlResult = $this->getPersistence()->query($sqlQuery, array($resource->getUri(), RDFS_SUBCLASSOF));
@@ -105,7 +105,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
 		while ($row = $sqlResult->fetch()){
 
             $parentClass = new core_kernel_classes_Class($row['object']);
-            
+
             $returnValue[$parentClass->getUri()] = $parentClass ;
             if ($recursive == true && $parentClass->getUri() != RDFS_CLASS && $parentClass->getUri() != RDFS_RESOURCE) {
                 if ($parentClass->getUri() == CLASS_GENERIS_RESOURCE) {
@@ -127,18 +127,18 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
     public function getProperties( core_kernel_classes_Class $resource, $recursive = false)
     {
         $returnValue = array();
-        
+
         $sqlQuery = 'SELECT subject FROM statements WHERE predicate = ?  AND '. $this->getPersistence()->getPlatForm()->getObjectTypeCondition() .' = ?';
         $sqlResult = $this->getPersistence()->query($sqlQuery, array(
             RDFS_DOMAIN,
             $resource->getUri()
         ));
-        
+
         while ($row = $sqlResult->fetch()) {
             $property = new core_kernel_classes_Property($row['subject']);
             $returnValue[$property->getUri()] = $property;
         }
-        
+
         if ($recursive == true) {
             $parentClasses = $this->getParentClasses($resource, true);
             foreach ($parentClasses as $parent) {
@@ -147,7 +147,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
                 }
             }
         }
-        
+
         return $returnValue;
     }
 
@@ -158,22 +158,22 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
     public function getInstances(core_kernel_classes_Class $resource, $recursive = false, $params = array())
     {
         $returnValue = array();
-        
+
         $params = array_merge($params, array('like' => false, 'recursive' => $recursive));
-        
+
         $query = $this->getFilteredQuery($resource, array(), $params);
         $result = $this->getPersistence()->query($query);
-        
+
         while ($row = $result->fetch()) {
             $foundInstancesUri = $row['subject'];
             $returnValue[$foundInstancesUri] = new core_kernel_classes_Resource($foundInstancesUri);
         }
-        
+
         return $returnValue;
     }
 
     /**
-     * 
+     *
      * @param core_kernel_classes_Class $resource
      * @param core_kernel_classes_Resource $instance
      * @throws common_exception_DeprecatedApiMethod
@@ -193,7 +193,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
      * @param  core_kernel_classes_Class resource
      * @param  Class iClass
      * @return boolean
-     * 
+     *
      */
     public function setSubClassOf( core_kernel_classes_Class $resource,  core_kernel_classes_Class $iClass)
     {
@@ -214,7 +214,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
      * @param  Property property
      * @return boolean
      * @deprecated
-     * 
+     *
      */
     public function setProperty( core_kernel_classes_Class $resource,  core_kernel_classes_Property $property)
     {
@@ -279,7 +279,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
         if (!empty($comment)) {
             $properties[RDFS_COMMENT] = $comment;
         }
-            
+
         $returnValue->setPropertiesValues($properties);
         return $returnValue;
     }
@@ -301,7 +301,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
 		if (!$returnValue->setDomain($resource)){
 			throw new common_Exception('problem creating property');
 		}
-        
+
         return $returnValue;
     }
 
@@ -312,20 +312,20 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
     public function searchInstances(core_kernel_classes_Class $resource, $propertyFilters = array(), $options = array())
     {
         $returnValue = array();
-        
+
         // Avoid a 'like' search on RDF_TYPE!
         if (count($propertyFilters) === 0) {
             $options = array_merge($options, array('like' => false));
         }
-        
+
         $query = $this->getFilteredQuery($resource, $propertyFilters, $options);
         $result = $this->getPersistence()->query($query);
-        
-        while ($row = $result->fetch()) {	
+
+        while ($row = $result->fetch()) {
             $foundInstancesUri = $row['subject'];
             $returnValue[$foundInstancesUri] = new core_kernel_classes_Resource($foundInstancesUri);
         }
-        
+
         return $returnValue;
     }
 
@@ -338,15 +338,15 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
 		if (isset($options['offset'])) {
             unset($options['offset']);
         }
-        
+
 		if (isset($options['limit'])) {
             unset($options['limit']);
         }
-        
+
         if (isset($options['order'])) {
             unset($options['order']);
         }
-        
+
 		$query = 'SELECT count(subject) FROM (' . $this->getFilteredQuery($resource, $propertyFilters, $options) . ') as countq';
 		return $this->getPersistence()->query($query)->fetchColumn();
     }
@@ -358,34 +358,34 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
     public function getInstancesPropertyValues( core_kernel_classes_Class $resource,  core_kernel_classes_Property $property, $propertyFilters = array(), $options = array())
     {
         $returnValue = array();
-        
+
         $distinct = isset($options['distinct']) ? $options['distinct'] : false;
-        
+
         if (count($propertyFilters) === 0) {
             $options = array_merge($options, array('like' => false));
         }
-        
+
         $filteredQuery = $this->getFilteredQuery($resource, $propertyFilters, $options);
-        
+
         // Get all the available property values in the subset of instances
         $query = 'SELECT';
         if ($distinct) {
             $query .= ' DISTINCT';
         }
-        
+
         $query .= " object FROM (SELECT overq.subject, valuesq.object FROM (${filteredQuery}) as overq JOIN statements AS valuesq ON (overq.subject = valuesq.subject AND valuesq.predicate = ?)) AS overrootq";
-        
+
         $sqlResult = $this->getPersistence()->query($query, array($property->getUri()));
         while ($row = $sqlResult->fetch()) {
             $returnValue[] = common_Utils::toResource($row['object']);
         }
-        
+
         return (array) $returnValue;
     }
 
     /**
      * Remove a Property from its Class definition.
-     * 
+     *
      * @param core_kernel_classes_Class $resource
      * @param core_kernel_classes_Property $property
      * @deprecated
@@ -407,11 +407,11 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
         if (isset($properties[RDF_TYPE])) {
             throw new core_kernel_persistence_Exception('Additional types in createInstanceWithProperties not permited');
         }
-        
+
         $properties[RDF_TYPE] = $type;
 		$returnValue = new core_kernel_classes_Resource(common_Utils::getNewUri(), __METHOD__);
 		$returnValue->setPropertiesValues($properties);
-        
+
         return $returnValue;
     }
 
@@ -425,28 +425,28 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
 
         $class = new core_kernel_classes_Class($resource->getUri());
         $uris = array();
-        
+
         foreach ($resources as $r) {
             $uri = (($r instanceof core_kernel_classes_Resource) ? $r->getUri() : $r);
             $uris[] = $this->getPersistence()->quote($uri);
         }
-        
+
         if ($class->exists()) {
             $inValues = implode(',', $uris);
             $query = 'DELETE FROM statements WHERE subject IN (' . $inValues . ')';
-        	
+
             if (true === $deleteReference) {
                 $params[] = $resource->getUri();
                 $query .= ' OR object IN (' . $inValues . ')';
             }
-        	
+
             try {
         		// Even if now rows are affected, we consider the resources
         		// as deleted.
-        		$this->getPersistence()->exec($query);	
+        		$this->getPersistence()->exec($query);
         		$returnValue = true;
             } catch (PDOException $e) {
-        	    throw new core_kernel_persistence_smoothsql_Exception("An error occured while deleting resources: " . $e->getMessage());
+        	    throw new \core_kernel_persistence_smoothsql_Exception("An error occured while deleting resources: " . $e->getMessage());
             }
         }
 
@@ -454,7 +454,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
     }
 
     /**
-     * 
+     *
      * @param core_kernel_classes_Class $resource
      * @param array $propertyFilters
      * @param array $options
@@ -463,14 +463,14 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
     public function getFilteredQuery(core_kernel_classes_Class $resource, $propertyFilters = array(), $options = array())
     {
         $rdftypes = array();
-        
+
         // Check recursivity...
 		if (isset($options['recursive']) && $options['recursive']) {
             foreach($this->getSubClasses($resource, $options['recursive']) as $subClass){
                 $rdftypes[] = $subClass->getUri();
             }
 		}
-	
+
 		// Check additional classes...
         if (isset($options['additionalClasses'])) {
         	foreach ($options['additionalClasses'] as $aC) {

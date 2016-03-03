@@ -18,10 +18,13 @@
  *
  */
 
+namespace oat\generis\altsmooth;
+
 use oat\generis\model\data\RdfInterface;
 use oat\oatbox\service\ServiceManager;
 use oat\oatbox\event\EventManager;
 use oat\generis\model\data\event\ResourceCreated;
+use \core_kernel_classes_Resource;
 
 /**
  * Implementation of the RDF interface for the smooth sql driver

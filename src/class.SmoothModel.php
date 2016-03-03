@@ -18,6 +18,8 @@
  *
  */
 
+namespace oat\generis\altsmooth;
+
 use oat\generis\model\data\Model;
 use oat\oatbox\Configurable;
 use oat\generis\model\data\ModelManager;

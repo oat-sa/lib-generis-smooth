@@ -18,6 +18,8 @@
  *
  */
 
+namespace oat\generis\altsmooth;
+
 /**
  * Iterator over all triples
  * 
