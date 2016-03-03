@@ -32,15 +32,14 @@ use \core_kernel_classes_Resource;
  * @author joel bout <joel@taotesting.com>
  * @package generis
  */
-class core_kernel_persistence_smoothsql_SmoothRdf
-    implements RdfInterface
+class SmoothRdf implements RdfInterface
 {
     /**
-     * @var core_kernel_persistence_smoothsql_SmoothModel
+     * @var SmoothModel
      */
     private $model;
     
-    public function __construct(core_kernel_persistence_smoothsql_SmoothModel $model) {
+    public function __construct(SmoothModel $model) {
         $this->model = $model;
     }
     
@@ -91,7 +90,7 @@ class core_kernel_persistence_smoothsql_SmoothRdf
     }
     
     public function getIterator() {
-        return new core_kernel_persistence_smoothsql_SmoothIterator($this->getPersistence());
+        return new SmoothIterator($this->getPersistence());
     }
     
     public function getServiceManager()

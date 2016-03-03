@@ -25,13 +25,14 @@ use \core_kernel_persistence_ClassInterface;
 use \core_kernel_classes_Resource;
 use \core_kernel_classes_Property;
 use \core_kernel_classes_Class;
+use \common_Utils;
 
 
 /**
- * Short description of class core_kernel_persistence_smoothsql_Class
+ * Short description of class Class
  *
  */
-class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_kernel_persistence_ClassInterface
+class Clazz extends Resource implements core_kernel_persistence_ClassInterface
 {
 
     /**
@@ -446,7 +447,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
         		$this->getPersistence()->exec($query);
         		$returnValue = true;
             } catch (PDOException $e) {
-        	    throw new \core_kernel_persistence_smoothsql_Exception("An error occured while deleting resources: " . $e->getMessage());
+        	    throw new \Exception("An error occured while deleting resources: " . $e->getMessage());
             }
         }
 
@@ -492,7 +493,7 @@ class Clazz extends core_kernel_persistence_smoothsql_Resource implements core_k
         $order = (isset($options['order']) === false) ? '' : $options['order'];
         $orderdir = (isset($options['orderdir']) === false) ? 'ASC' : $options['orderdir'];
            
-        $query = core_kernel_persistence_smoothsql_Utils::buildFilterQuery($this->getModel(), $rdftypes, $propertyFilters, $and, $like, $lang, $offset, $limit, $order, $orderdir);
+        $query = Utils::buildFilterQuery($this->getModel(), $rdftypes, $propertyFilters, $and, $like, $lang, $offset, $limit, $order, $orderdir);
         
         return $query;
     }

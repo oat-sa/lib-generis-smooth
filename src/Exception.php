@@ -23,14 +23,14 @@
 namespace oat\generis\altsmooth;
 
 /**
- * Short description of class core_kernel_persistence_smoothsql_Exception
+ * Short description of class Exception
  *
  * @access public
  * @author Joel Bout, <joel.bout@tudor.lu>
  * @package generis
  
  */
-class core_kernel_persistence_smoothsql_Exception
+class Exception
     extends core_kernel_persistence_Exception
 {
     // --- ASSOCIATIONS ---

@@ -23,14 +23,15 @@
 namespace oat\generis\altsmooth;
 
 use \core_kernel_classes_Resource;
-
+use \common_persistence_SqlPersistence;
+use \core_kernel_classes_Literal;
 /**
  * Utility class for package core\kernel\persistence\smoothsql.
  * 
  * @author Jérôme Bogaerts <jerome@taotesting.com>
  * @author Cédric Alfonsi <cerdic.alfonsi@tudor.lu>
  */
-class core_kernel_persistence_smoothsql_Utils
+class Utils
 {
 
     /**
@@ -191,7 +192,7 @@ class core_kernel_persistence_smoothsql_Utils
         return $returnValue;
     }
     
-    static public function buildPropertyQuery(core_kernel_persistence_smoothsql_SmoothModel $model, $propertyUri, $values, $like, $lang = '')
+    static public function buildPropertyQuery(SmoothModel $model, $propertyUri, $values, $like, $lang = '')
     {
         $persistence = $model->getPersistence();
         
@@ -252,7 +253,7 @@ class core_kernel_persistence_smoothsql_Utils
         }
     }
     
-    static public function buildFilterQuery(core_kernel_persistence_smoothsql_SmoothModel $model, $classUri, array $propertyFilters, $and = true, $like = true, $lang = '', $offset = 0, $limit = 0, $order = '', $orderDir = 'ASC')
+    static public function buildFilterQuery(SmoothModel $model, $classUri, array $propertyFilters, $and = true, $like = true, $lang = '', $offset = 0, $limit = 0, $order = '', $orderDir = 'ASC')
     {
         $persistence = $model->getPersistence();
         

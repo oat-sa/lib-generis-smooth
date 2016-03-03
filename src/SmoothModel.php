@@ -30,7 +30,7 @@ use oat\generis\model\data\ModelManager;
  * @author joel bout <joel@taotesting.com>
  * @package generis
  */
-class core_kernel_persistence_smoothsql_SmoothModel extends Configurable
+class SmoothModel extends Configurable
     implements Model
 {
     const OPTION_PERSISTENCE = 'persistence';
@@ -51,7 +51,7 @@ class core_kernel_persistence_smoothsql_SmoothModel extends Configurable
     
     public function getPersistence() {
         if (is_null($this->persistence)) {
-            $this->persistence = common_persistence_SqlPersistence::getPersistence($this->getOption(self::OPTION_PERSISTENCE));
+            $this->persistence = \common_persistence_SqlPersistence::getPersistence($this->getOption(self::OPTION_PERSISTENCE));
         }
         return $this->persistence;
     }
@@ -61,7 +61,7 @@ class core_kernel_persistence_smoothsql_SmoothModel extends Configurable
      * @see \oat\generis\model\data\Model::getRdfInterface()
      */
     public function getRdfInterface() {
-        return new core_kernel_persistence_smoothsql_SmoothRdf($this);
+        return new SmoothRdf($this);
     }
     
     /**
@@ -69,7 +69,7 @@ class core_kernel_persistence_smoothsql_SmoothModel extends Configurable
      * @see \oat\generis\model\data\Model::getRdfsInterface()
      */
     public function getRdfsInterface() {
-        return new core_kernel_persistence_smoothsql_SmoothRdfs($this);
+        return new SmoothRdfs($this);
     }
     
     // Manage the sudmodels of the smooth mode

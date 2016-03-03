@@ -26,7 +26,7 @@ namespace oat\generis\altsmooth;
  * @author joel bout <joel@taotesting.com>
  * @package generis
  */
-class core_kernel_persistence_smoothsql_SmoothIterator
+class SmoothIterator
     extends common_persistence_sql_QueryIterator
 {
     /**

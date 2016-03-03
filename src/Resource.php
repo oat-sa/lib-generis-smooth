@@ -25,26 +25,28 @@ namespace oat\generis\altsmooth;
 use \core_kernel_classes_Resource;
 use \core_kernel_classes_Property;
 use \core_kernel_classes_Class;
+use \core_kernel_classes_Literal;
+use \common_Utils;
 
 /**
- * Short description of class core_kernel_persistence_smoothsql_Resource
+ * Short description of class Resource
  *
  * @access public
  * @author Joel Bout, <joel.bout@tudor.lu>
  * @package generis
  
  */
-class core_kernel_persistence_smoothsql_Resource
-    extends core_kernel_persistence_PersistenceImpl
-        implements core_kernel_persistence_ResourceInterface
+class Resource
+    extends \core_kernel_persistence_PersistenceImpl
+        implements \core_kernel_persistence_ResourceInterface
 {
 
     /**
-     * @var core_kernel_persistence_smoothsql_SmoothModel
+     * @var SmoothModel
      */
     private $model;
     
-    public function __construct(core_kernel_persistence_smoothsql_SmoothModel $model) {
+    public function __construct(SmoothModel $model) {
         $this->model = $model;
     }
     
@@ -158,7 +160,7 @@ class core_kernel_persistence_smoothsql_Resource
         	} 
         	// Filter result by language and return one set of values (User language in top priority, default language in second and the fallback language (null) in third)
         	else {
-        		 $returnValue = core_kernel_persistence_smoothsql_Utils::filterByLanguage($this->getPersistence(), $result->fetchAll(), 'l_language');
+        		 $returnValue = Utils::filterByLanguage($this->getPersistence(), $result->fetchAll(), 'l_language');
         	}
         }
         
@@ -409,14 +411,14 @@ class core_kernel_persistence_smoothsql_Resource
 		$conditions = array();
 		if(is_string($pattern)){
 			if(!is_null($pattern)){
-				$searchPattern = core_kernel_persistence_smoothsql_Utils::buildSearchPattern($this->getPersistence(), $pattern, $like);
+				$searchPattern = Utils::buildSearchPattern($this->getPersistence(), $pattern, $like);
 				$conditions[] = '( '.$objectType . ' ' .$searchPattern.' )';
 			}
 		}else if(is_array($pattern)){
 			if(count($pattern) > 0){
 				$multiCondition =  "( ";
 				foreach($pattern as $i => $patternToken){
-					$searchPattern = core_kernel_persistence_smoothsql_Utils::buildSearchPattern($this->getPersistence(), $patternToken, $like);
+					$searchPattern = Utils::buildSearchPattern($this->getPersistence(), $patternToken, $like);
 					if($i > 0) {
                         $multiCondition .= " OR ";
                     }
@@ -701,8 +703,8 @@ class core_kernel_persistence_smoothsql_Resource
         $result	= $this->getPersistence()->query($query);
         
         $rows = $result->fetchAll();
-        $sortedByLg = core_kernel_persistence_smoothsql_Utils::sortByLanguage($this->getPersistence(), $rows, 'l_language');
-        $identifiedLg = core_kernel_persistence_smoothsql_Utils::identifyFirstLanguage($sortedByLg);
+        $sortedByLg = Utils::sortByLanguage($this->getPersistence(), $rows, 'l_language');
+        $identifiedLg = Utils::identifyFirstLanguage($sortedByLg);
 
         foreach($rows as $row){
         	$value = $platform->getPhpTextValue($row['object']);
