@@ -234,7 +234,7 @@ class Utils
         if (empty($lang) === false) {
             $sqlEmpty = $persistence->quote('');
             $sqlLang = $persistence->quote($lang);
-            $languagePattern = "${$tableAlias}l_language = ${sqlEmpty} OR ${$tableAlias}l_language = ${sqlLang}";
+            $languagePattern = "${tableAlias}l_language = ${sqlEmpty} OR ${tableAlias}l_language = ${sqlLang}";
         }
         
         return $languagePattern;
