@@ -228,7 +228,7 @@ class Utils
         $languagePattern = '';
 
         if (empty($tableAlias) === false) {
-            $tableAlias = '.' . $tableAlias;
+            $tableAlias = $tableAlias . '.';
         }
 
         if (empty($lang) === false) {
