@@ -19,7 +19,7 @@
  *               2009-2012 (update and modification) Public Research Centre Henri Tudor (under the project TAO-SUSTAIN & TAO-DEV);
  *               2012-2014 (update and modification) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
-namespace oat\generis\altsmooth;
+namespace oat\generis\smooth;
 
 use \core_kernel_persistence_ClassInterface;
 use \core_kernel_classes_Resource;

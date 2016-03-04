@@ -18,7 +18,7 @@
  *
  */
 
-namespace oat\generis\altsmooth;
+namespace oat\generis\smooth;
 
 use oat\generis\model\data\RdfsInterface;
 

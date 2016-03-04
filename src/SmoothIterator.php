@@ -18,7 +18,7 @@
  *
  */
 
-namespace oat\generis\altsmooth;
+namespace oat\generis\smooth;
 
 use \common_persistence_SqlPersistence;
 use \core_kernel_classes_Triple;

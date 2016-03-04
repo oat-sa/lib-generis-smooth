@@ -1,6 +1,6 @@
 {
-	"name": "oat-sa/lib-generis-altsmooth",
-	"description": "alternate smooth implementation for generis",
+	"name": "oat-sa/lib-generis-smooth",
+	"description": "smooth implementation for generis",
 	"version": "0.1",
 	"type": "library",
 	"authors": [
@@ -29,7 +29,7 @@
 	},
     "autoload" : {
         "psr-4" : {
-            "oat\\generis\\altsmooth\\" : "src/"
+            "oat\\generis\\smooth\\" : "src/"
         }
     }
 }
