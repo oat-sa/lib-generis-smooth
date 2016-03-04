@@ -25,7 +25,10 @@ use \core_kernel_persistence_ClassInterface;
 use \core_kernel_classes_Resource;
 use \core_kernel_classes_Property;
 use \core_kernel_classes_Class;
+use \core_kernel_persistence_Exception;
 use \common_Utils;
+use \common_Exception;
+use \common_Logger;
 
 
 /**
@@ -101,9 +104,9 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
 
         $sqlQuery = 'SELECT object FROM statements WHERE subject = ?  AND predicate = ?';
 
-		$sqlResult = $this->getPersistence()->query($sqlQuery, array($resource->getUri(), RDFS_SUBCLASSOF));
+        $sqlResult = $this->getPersistence()->query($sqlQuery, array($resource->getUri(), RDFS_SUBCLASSOF));
 
-		while ($row = $sqlResult->fetch()){
+        while ($row = $sqlResult->fetch()){
 
             $parentClass = new core_kernel_classes_Class($row['object']);
 
@@ -116,7 +119,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
                 	$returnValue = array_merge($returnValue, $plop);
                 }
             }
-		}
+        }
 
         return $returnValue;
     }
@@ -177,13 +180,13 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
      *
      * @param core_kernel_classes_Class $resource
      * @param core_kernel_classes_Resource $instance
-     * @throws common_exception_DeprecatedApiMethod
+     * @throws \common_exception_DeprecatedApiMethod
      * @return core_kernel_classes_Resource
      * @deprecated
      */
     public function setInstance( core_kernel_classes_Class $resource,  core_kernel_classes_Resource $instance)
     {
-        throw new common_exception_DeprecatedApiMethod(__METHOD__ . ' is deprecated. ');
+        throw new \common_exception_DeprecatedApiMethod(__METHOD__ . ' is deprecated. ');
     }
 
     /**
@@ -191,17 +194,15 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
      *
      * @access public
      * @author Jerome Bogaerts, <jerome.bogaerts@tudor.lu>
-     * @param  core_kernel_classes_Class resource
-     * @param  Class iClass
+     * @param  core_kernel_classes_Class $resource
+     * @param  core_kernel_classes_Class $iClass
      * @return boolean
      *
      */
     public function setSubClassOf( core_kernel_classes_Class $resource,  core_kernel_classes_Class $iClass)
     {
-        $returnValue = (bool) false;
-
-		$subClassOf = new core_kernel_classes_Property(RDFS_SUBCLASSOF);
-		$returnValue = $this->setPropertyValue($resource, $subClassOf, $iClass->getUri());
+        $subClassOf = new core_kernel_classes_Property(RDFS_SUBCLASSOF);
+        $returnValue = $this->setPropertyValue($resource, $subClassOf, $iClass->getUri());
 
         return (bool) $returnValue;
     }
@@ -211,15 +212,14 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
      *
      * @access public
      * @author Jerome Bogaerts, <jerome.bogaerts@tudor.lu>
-     * @param  core_kernel_classes_Class resource
-     * @param  Property property
-     * @return boolean
+     * @param  core_kernel_classes_Class $resource
+     * @param  core_kernel_classes_Property $property
+     * @throws \common_exception_DeprecatedApiMethod
      * @deprecated
-     *
      */
     public function setProperty( core_kernel_classes_Class $resource,  core_kernel_classes_Property $property)
     {
-        throw new common_exception_DeprecatedApiMethod(__METHOD__ . ' is deprecated. ');
+        throw new \common_exception_DeprecatedApiMethod(__METHOD__ . ' is deprecated. ');
     }
 
     /**
@@ -230,32 +230,31 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
     {
         $returnValue = null;
 
-    	$subject = '';
-    	if ($uri == ''){
-			$subject = common_Utils::getNewUri();
-		}
-		else if ( $uri[0]=='#'){ //$uri should start with # and be well formed
-				$modelUri = common_ext_NamespaceManager::singleton()->getLocalNamespace()->getUri();
-				$subject = rtrim($modelUri, '#') . $uri;
-		}
-		else{
-				$subject = $uri;
-		}
+        if ($uri == ''){
+            $subject = common_Utils::getNewUri();
+        }
+        else if ( $uri[0]=='#'){ //$uri should start with # and be well formed
+            $modelUri = common_ext_NamespaceManager::singleton()->getLocalNamespace()->getUri();
+            $subject = rtrim($modelUri, '#') . $uri;
+        }
+        else{
+            $subject = $uri;
+        }
 
-		$returnValue = new core_kernel_classes_Resource($subject, __METHOD__);
-		if (!$returnValue->hasType($resource)){
-			$returnValue->setType($resource);
-		}
-		else {
-			common_Logger::e('already had type '. $resource);
-		}
+        $returnValue = new core_kernel_classes_Resource($subject, __METHOD__);
+        if (!$returnValue->hasType($resource)){
+            $returnValue->setType($resource);
+        }
+        else {
+            \common_Logger::e('already had type '. $resource);
+        }
 
-		if (!empty($label)) {
-			$returnValue->setLabel($label);
-		}
-		if (!empty($comment)) {
-			$returnValue->setComment($comment);
-		}
+        if (!empty($label)) {
+            $returnValue->setLabel($label);
+        }
+        if (!empty($comment)) {
+            $returnValue->setComment($comment);
+        }
 
         return $returnValue;
     }
@@ -267,7 +266,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
     public function createSubClass( core_kernel_classes_Class $resource, $label = '', $comment = '', $uri = '')
     {
         if (!empty($uri)) {
-            common_Logger::w('Use of parameter uri in '.__METHOD__.' is deprecated');
+            \common_Logger::w('Use of parameter uri in '.__METHOD__.' is deprecated');
         }
         $uri = empty($uri) ? common_Utils::getNewUri() : $uri;
         $returnValue = new core_kernel_classes_Class($uri, __METHOD__);
@@ -394,7 +393,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
      */
     public function unsetProperty( core_kernel_classes_Class $resource,  core_kernel_classes_Property $property)
     {
-        throw new common_exception_DeprecatedApiMethod(__METHOD__ . ' is deprecated. ');
+        throw new \common_exception_DeprecatedApiMethod(__METHOD__ . ' is deprecated. ');
     }
 
     /**
@@ -446,7 +445,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
         		// as deleted.
         		$this->getPersistence()->exec($query);
         		$returnValue = true;
-            } catch (PDOException $e) {
+            } catch (\PDOException $e) {
         	    throw new \Exception("An error occured while deleting resources: " . $e->getMessage());
             }
         }

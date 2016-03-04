@@ -25,6 +25,7 @@ namespace oat\generis\altsmooth;
 use \core_kernel_classes_Resource;
 use \common_persistence_SqlPersistence;
 use \core_kernel_classes_Literal;
+use \common_Logger;
 /**
  * Utility class for package core\kernel\persistence\smoothsql.
  * 
@@ -216,8 +217,8 @@ class Utils
         if (empty($lang) === false) {
             $sqlLang = ' AND (' . self::buildLanguagePattern($persistence, $lang) . ')';
         }
-        
-        $query = "SELECT DISTINCT subject FROM statements WHERE (predicate = ${predicate}) AND (${sqlValues}${sqlLang})"
+
+        $query = "(predicate=${predicate}) AND (${sqlValues}${sqlLang})"
             .' AND modelid IN ('.implode(',', $model->getReadableModels()).')';
         
         return $query;
@@ -248,8 +249,8 @@ class Utils
             foreach ($propertyQueries as $query) {
                 $finalPropertyQueries[] = "(${query})";
             }
-            
-            return implode(' UNION ALL ', $finalPropertyQueries);
+
+            return 'SELECT `subject` FROM `statements` WHERE (' . implode(' OR ', $finalPropertyQueries) . ')';
         }
     }
     

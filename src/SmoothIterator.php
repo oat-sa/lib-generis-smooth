@@ -20,6 +20,9 @@
 
 namespace oat\generis\altsmooth;
 
+use \common_persistence_SqlPersistence;
+use \core_kernel_classes_Triple;
+
 /**
  * Iterator over all triples
  * 

@@ -36,7 +36,7 @@ use \core_kernel_classes_Class;
  */
 class Property
     extends Resource
-        implements core_kernel_persistence_PropertyInterface
+        implements \core_kernel_persistence_PropertyInterface
 {
     // --- ASSOCIATIONS ---
 
@@ -59,18 +59,14 @@ class Property
      *
      * @access public
      * @author Jerome Bogaerts, <jerome.bogaerts@tudor.lu>
-     * @param  Resource resource
+     * @param  core_kernel_classes_Resource $resource
+     * @throws \core_kernel_persistence_ProhibitedFunctionException
      * @return boolean
      */
     public function isLgDependent( core_kernel_classes_Resource $resource)
     {
-        $returnValue = (bool) false;
 
-        
-
-        throw new core_kernel_persistence_ProhibitedFunctionException("not implemented => The function (".__METHOD__.") is not available in this persistence implementation (".__CLASS__.")");
-        
-        
+        throw new \core_kernel_persistence_ProhibitedFunctionException("not implemented => The function (".__METHOD__.") is not available in this persistence implementation (".__CLASS__.")");
 
         return (bool) $returnValue;
     }
@@ -85,13 +81,7 @@ class Property
      */
     public function isMultiple( core_kernel_classes_Resource $resource)
     {
-        $returnValue = (bool) false;
-
-        
-        
-        throw new core_kernel_persistence_ProhibitedFunctionException("not implemented => The function (".__METHOD__.") is not available in this persistence implementation (".__CLASS__.")");
-        
-        
+        throw new \core_kernel_persistence_ProhibitedFunctionException("not implemented => The function (".__METHOD__.") is not available in this persistence implementation (".__CLASS__.")");
 
         return (bool) $returnValue;
     }
@@ -106,11 +96,7 @@ class Property
      */
     public function getRange( core_kernel_classes_Resource $resource)
     {
-        $returnValue = null;
-
-        
-        throw new core_kernel_persistence_ProhibitedFunctionException("not implemented => The function (".__METHOD__.") is not available in this persistence implementation (".__CLASS__.")");
-        
+        throw new \core_kernel_persistence_ProhibitedFunctionException("not implemented => The function (".__METHOD__.") is not available in this persistence implementation (".__CLASS__.")");
 
         return $returnValue;
     }
@@ -120,20 +106,16 @@ class Property
      *
      * @access public
      * @author Jerome Bogaerts, <jerome.bogaerts@tudor.lu>
-     * @param  Resource resource
+     * @param  core_kernel_classes_Resource $resource
      * @param  boolean deleteReference
      * @return boolean
      */
     public function delete( core_kernel_classes_Resource $resource, $deleteReference = false)
     {
-        $returnValue = (bool) false;
-
-        
-        
         //delete all values of the property to delete
         if ($deleteReference){
 			$query = 'DELETE FROM "statements" WHERE "predicate" = ? AND '.$this->getModelWriteSqlCondition();
-	        $returnValue = $this->getPersistence()->exec($query, array($resource->getUri()));
+	        $this->getPersistence()->exec($query, array($resource->getUri()));
         }
         $returnValue = parent::delete($resource, $deleteReference);
 
@@ -145,19 +127,14 @@ class Property
      *
      * @access public
      * @author Jerome Bogaerts, <jerome.bogaerts@tudor.lu>
-     * @param  Resource resource
-     * @param  Class class
+     * @param  core_kernel_classes_Resource $resource
+     * @param  core_kernel_classes_Class $class
      * @return core_kernel_classes_Class
      */
     public function setRange( core_kernel_classes_Resource $resource,  core_kernel_classes_Class $class)
     {
-        $returnValue = null;
-
-        
         $rangeProp = new core_kernel_classes_Property(RDFS_RANGE, __METHOD__);
         $returnValue = $this->setPropertyValue($resource, $rangeProp, $class->getUri());
-        
-
         return $returnValue;
     }
 
@@ -172,12 +149,10 @@ class Property
      */
     public function setMultiple( core_kernel_classes_Resource $resource, $isMultiple)
     {
-        
-    	$multipleProperty = new core_kernel_classes_Property(PROPERTY_MULTIPLE);
+        $multipleProperty = new core_kernel_classes_Property(PROPERTY_MULTIPLE);
         $value = ((bool)$isMultiple) ?  GENERIS_TRUE : GENERIS_FALSE ;
         $this->removePropertyValues($resource, $multipleProperty);
         $this->setPropertyValue($resource, $multipleProperty, $value);
-        
     }
 
     /**
@@ -191,12 +166,10 @@ class Property
      */
     public function setLgDependent( core_kernel_classes_Resource $resource, $isLgDependent)
     {
-        
-    	$lgDependentProperty = new core_kernel_classes_Property(PROPERTY_IS_LG_DEPENDENT,__METHOD__);
+        $lgDependentProperty = new core_kernel_classes_Property(PROPERTY_IS_LG_DEPENDENT,__METHOD__);
         $value = ((bool)$isLgDependent) ?  GENERIS_TRUE : GENERIS_FALSE ;
         $this->removePropertyValues($resource, $lgDependentProperty);
         $this->setPropertyValue($resource, $lgDependentProperty, $value);
-        
     }
 
     /**
@@ -208,16 +181,10 @@ class Property
      */
     public static function singleton()
     {
-        $returnValue = null;
-
-        
-
-		if (Property::$instance == null){
-			Property::$instance = new Property();
-		}
-		$returnValue = Property::$instance;
-
-        
+        if (Property::$instance == null){
+            Property::$instance = new Property();
+        }
+        $returnValue = Property::$instance;
 
         return $returnValue;
     }

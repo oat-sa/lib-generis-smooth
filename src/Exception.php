@@ -30,8 +30,7 @@ namespace oat\generis\altsmooth;
  * @package generis
  
  */
-class Exception
-    extends core_kernel_persistence_Exception
+class Exception extends \core_kernel_persistence_Exception
 {
     // --- ASSOCIATIONS ---
 

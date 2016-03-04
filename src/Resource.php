@@ -26,6 +26,10 @@ use \core_kernel_classes_Resource;
 use \core_kernel_classes_Property;
 use \core_kernel_classes_Class;
 use \core_kernel_classes_Literal;
+use \core_kernel_classes_Triple;
+use \common_session_SessionManager;
+use \core_kernel_persistence_Exception;
+use \core_kernel_classes_ContainerCollection;
 use \common_Utils;
 
 /**
@@ -270,9 +274,9 @@ class Resource
         		
 	        	$platform = $this->getPersistence()->getPlatForm();
 	        	$mask		= 'yyy[admin,administrators,authors]';	//now it's the default right mode
-	        	$user		= common_session_SessionManager::isAnonymous()
+	        	$user		= \common_session_SessionManager::isAnonymous()
                     ? $platform->getNullString()
-                    : $this->getPersistence()->quote(common_session_SessionManager::getSession()->getUser()->getIdentifier());
+                    : $this->getPersistence()->quote(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
 	       		
 	      
 	        	$multipleInsertQueryHelper = $platform->getMultipleInsertsSqlQueryHelper();
@@ -362,7 +366,7 @@ class Resource
         
 
 		$platform = $this->getPersistence()->getPlatForm();
-		$userId     = common_session_SessionManager::isAnonymous()
+		$userId     = \common_session_SessionManager::isAnonymous()
     		? null : \common_session_SessionManager::getSession()->getUser()->getIdentifier();
         $mask		= 'yyy[admin,administrators,authors]';	//now it's the default right mode
         

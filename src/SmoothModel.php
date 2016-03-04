@@ -23,6 +23,8 @@ namespace oat\generis\altsmooth;
 use oat\generis\model\data\Model;
 use oat\oatbox\Configurable;
 use oat\generis\model\data\ModelManager;
+use \common_Logger;
+use \common_exception_Error;
 
 /**
  * transitory model for the smooth sql implementation
