@@ -253,6 +253,7 @@ class Utils
         $whereQuery = self::buildWhereQuery($model, $classUri);
 
         $filterNum = 1;
+        $propertyQueries = [];
         foreach ($propertyFilters as $propertyUri => $filterValues) {
             if ($and) {
                 $propertyQueries[] = self::buildFilterAnd($model, $propertyUri, $filterValues, $like, $lang, $filterNum);
