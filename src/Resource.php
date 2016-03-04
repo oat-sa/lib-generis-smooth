@@ -513,7 +513,7 @@ class Resource
         $query = 'SELECT * FROM statements WHERE subject = ? AND '.$this->getModelReadSqlCondition().' ORDER BY predicate';
         $result = $this->getPersistence()->query($query, array($resource->getUri()));
         
-        $returnValue = new core_kernel_classes_ContainerCollection(new common_Object(__METHOD__));
+        $returnValue = new core_kernel_classes_ContainerCollection(new \common_Object(__METHOD__));
         while ($statement = $result->fetch()) {
             $triple = new core_kernel_classes_Triple();
             $triple->modelid = $statement["modelid"];
