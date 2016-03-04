@@ -242,7 +242,7 @@ class Utils
     
     static public function buildFilterQuery(SmoothModel $model, $classUri, array $propertyFilters, $and = true, $like = true, $lang = '', $offset = 0, $limit = 0, $order = '', $orderDir = 'ASC')
     {
-        $result = 'SELECT s.`subject` FROM `statements` s' . PHP_EOL;
+        $result = 'SELECT s.subject FROM statements s' . PHP_EOL;
         $persistence = $model->getPersistence();
 
         // Deal with target classes.
@@ -268,7 +268,7 @@ class Utils
         } else {
             $filter = implode(' OR ' . PHP_EOL, $propertyQueries);
             $filter = "INNER JOIN (" . PHP_EOL .
-                    "SELECT DISTINCT `subject` FROM statements" . PHP_EOL .
+                    "SELECT DISTINCT subject FROM statements" . PHP_EOL .
                     "WHERE (" . $filter . ")) filterQuery ON filterQuery.subject = s.subject". PHP_EOL;
         }
 
