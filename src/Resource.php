@@ -20,25 +20,37 @@
  * 
  */
 
+namespace oat\generisSmooth;
+
+use \core_kernel_classes_Resource;
+use \core_kernel_classes_Property;
+use \core_kernel_classes_Class;
+use \core_kernel_classes_Literal;
+use \core_kernel_classes_Triple;
+use \common_session_SessionManager;
+use \core_kernel_persistence_Exception;
+use \core_kernel_classes_ContainerCollection;
+use \common_Utils;
+
 /**
- * Short description of class core_kernel_persistence_smoothsql_Resource
+ * Short description of class Resource
  *
  * @access public
  * @author Joel Bout, <joel.bout@tudor.lu>
  * @package generis
  
  */
-class core_kernel_persistence_smoothsql_Resource
-    extends core_kernel_persistence_PersistenceImpl
-        implements core_kernel_persistence_ResourceInterface
+class Resource
+    extends \core_kernel_persistence_PersistenceImpl
+        implements \core_kernel_persistence_ResourceInterface
 {
 
     /**
-     * @var core_kernel_persistence_smoothsql_SmoothModel
+     * @var SmoothModel
      */
     private $model;
     
-    public function __construct(core_kernel_persistence_smoothsql_SmoothModel $model) {
+    public function __construct(SmoothModel $model) {
         $this->model = $model;
     }
     
@@ -152,7 +164,7 @@ class core_kernel_persistence_smoothsql_Resource
         	} 
         	// Filter result by language and return one set of values (User language in top priority, default language in second and the fallback language (null) in third)
         	else {
-        		 $returnValue = core_kernel_persistence_smoothsql_Utils::filterByLanguage($this->getPersistence(), $result->fetchAll(), 'l_language');
+        		 $returnValue = Utils::filterByLanguage($this->getPersistence(), $result->fetchAll(), 'l_language');
         	}
         }
         
@@ -262,9 +274,9 @@ class core_kernel_persistence_smoothsql_Resource
         		
 	        	$platform = $this->getPersistence()->getPlatForm();
 	        	$mask		= 'yyy[admin,administrators,authors]';	//now it's the default right mode
-	        	$user		= common_session_SessionManager::isAnonymous()
+	        	$user		= \common_session_SessionManager::isAnonymous()
                     ? $platform->getNullString()
-                    : $this->getPersistence()->quote(common_session_SessionManager::getSession()->getUser()->getIdentifier());
+                    : $this->getPersistence()->quote(\common_session_SessionManager::getSession()->getUser()->getIdentifier());
 	       		
 	      
 	        	$multipleInsertQueryHelper = $platform->getMultipleInsertsSqlQueryHelper();
@@ -354,7 +366,7 @@ class core_kernel_persistence_smoothsql_Resource
         
 
 		$platform = $this->getPersistence()->getPlatForm();
-		$userId     = common_session_SessionManager::isAnonymous()
+		$userId     = \common_session_SessionManager::isAnonymous()
     		? null : \common_session_SessionManager::getSession()->getUser()->getIdentifier();
         $mask		= 'yyy[admin,administrators,authors]';	//now it's the default right mode
         
@@ -403,14 +415,14 @@ class core_kernel_persistence_smoothsql_Resource
 		$conditions = array();
 		if(is_string($pattern)){
 			if(!is_null($pattern)){
-				$searchPattern = core_kernel_persistence_smoothsql_Utils::buildSearchPattern($this->getPersistence(), $pattern, $like);
+				$searchPattern = Utils::buildSearchPattern($this->getPersistence(), $pattern, $like);
 				$conditions[] = '( '.$objectType . ' ' .$searchPattern.' )';
 			}
 		}else if(is_array($pattern)){
 			if(count($pattern) > 0){
 				$multiCondition =  "( ";
 				foreach($pattern as $i => $patternToken){
-					$searchPattern = core_kernel_persistence_smoothsql_Utils::buildSearchPattern($this->getPersistence(), $patternToken, $like);
+					$searchPattern = Utils::buildSearchPattern($this->getPersistence(), $patternToken, $like);
 					if($i > 0) {
                         $multiCondition .= " OR ";
                     }
@@ -501,7 +513,7 @@ class core_kernel_persistence_smoothsql_Resource
         $query = 'SELECT * FROM statements WHERE subject = ? AND '.$this->getModelReadSqlCondition().' ORDER BY predicate';
         $result = $this->getPersistence()->query($query, array($resource->getUri()));
         
-        $returnValue = new core_kernel_classes_ContainerCollection(new common_Object(__METHOD__));
+        $returnValue = new core_kernel_classes_ContainerCollection(new \common_Object(__METHOD__));
         while ($statement = $result->fetch()) {
             $triple = new core_kernel_classes_Triple();
             $triple->modelid = $statement["modelid"];
@@ -695,8 +707,8 @@ class core_kernel_persistence_smoothsql_Resource
         $result	= $this->getPersistence()->query($query);
         
         $rows = $result->fetchAll();
-        $sortedByLg = core_kernel_persistence_smoothsql_Utils::sortByLanguage($this->getPersistence(), $rows, 'l_language');
-        $identifiedLg = core_kernel_persistence_smoothsql_Utils::identifyFirstLanguage($sortedByLg);
+        $sortedByLg = Utils::sortByLanguage($this->getPersistence(), $rows, 'l_language');
+        $identifiedLg = Utils::identifyFirstLanguage($sortedByLg);
 
         foreach($rows as $row){
         	$value = $platform->getPhpTextValue($row['object']);

@@ -20,13 +20,19 @@
  *               2012-2014 (update and modification) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
 
+namespace oat\generisSmooth;
+
+use \core_kernel_classes_Resource;
+use \common_persistence_SqlPersistence;
+use \core_kernel_classes_Literal;
+use \common_Logger;
 /**
  * Utility class for package core\kernel\persistence\smoothsql.
  * 
  * @author Jérôme Bogaerts <jerome@taotesting.com>
  * @author Cédric Alfonsi <cerdic.alfonsi@tudor.lu>
  */
-class core_kernel_persistence_smoothsql_Utils
+class Utils
 {
 
     /**
@@ -163,10 +169,14 @@ class core_kernel_persistence_smoothsql_Utils
                 break;
             
             default:
+                if ($like === true) {
+                    $like = \common_Utils::isUri($pattern) ? false : true;
+                }
                 $patternToken = $pattern;
                 $wildcard = mb_strpos($patternToken, '*', 0, 'UTF-8') !== false;
                 $object = trim(str_replace('*', '%', $patternToken));
-                
+
+
                 if ($like) {
                     if (!$wildcard && !preg_match("/^%/", $object)) {
                         $object = "%" . $object;
@@ -186,118 +196,176 @@ class core_kernel_persistence_smoothsql_Utils
         
         return $returnValue;
     }
-    
-    static public function buildPropertyQuery(core_kernel_persistence_smoothsql_SmoothModel $model, $propertyUri, $values, $like, $lang = '')
+
+    /**
+     * Build where part of filter query
+     * @param SmoothModel $model
+     * @param array|string $class list of types (classes)
+     * @return string
+     */
+    static public function buildWhereQuery(SmoothModel $model, $class)
     {
         $persistence = $model->getPersistence();
-        
-        // Deal with predicate...
-        $predicate = $persistence->quote($propertyUri);
-        
-        // Deal with values...
-        if (is_array($values) === false) {
-            $values = array($values);
+        $result = 'WHERE s.predicate = ' .$persistence->quote(RDF_TYPE) . PHP_EOL;
+
+        if (is_array($class) === false) {
+            $class = [$class];
         }
-        
-        $valuePatterns = array();
-        foreach ($values as $val) {
-            $valuePatterns[] = 'object ' . self::buildSearchPattern($persistence, $val, $like);
+
+        $typeConditions = [];
+        foreach ($class as $type) {
+            $typeConditions[] = 's.object ' .self::buildSearchPattern($persistence, $type, false);
         }
-        
-        $sqlValues = implode(' OR ', $valuePatterns);
-        
-        // Deal with language...
-        $sqlLang = '';
-        if (empty($lang) === false) {
-            $sqlLang = ' AND (' . self::buildLanguagePattern($persistence, $lang) . ')';
-        }
-        
-        $query = "SELECT DISTINCT subject FROM statements WHERE (predicate = ${predicate}) AND (${sqlValues}${sqlLang})"
-            .' AND modelid IN ('.implode(',', $model->getReadableModels()).')';
-        
-        return $query;
+
+        $result .= 'AND (' . implode(' OR ', $typeConditions) .  ')' . PHP_EOL;
+        $result .= 'AND s.modelid IN ('.implode(',', $model->getReadableModels()).')';
+
+        return $result;
     }
-    
-    static public function buildLanguagePattern(common_persistence_SqlPersistence $persistence, $lang = '')
+
+    static public function buildLanguagePattern(common_persistence_SqlPersistence $persistence, $lang = '', $tableAlias = '')
     {
         $languagePattern = '';
-        
+
+        if (empty($tableAlias) === false) {
+            $tableAlias = $tableAlias . '.';
+        }
+
         if (empty($lang) === false) {
             $sqlEmpty = $persistence->quote('');
             $sqlLang = $persistence->quote($lang);
-            $languagePattern = "l_language = ${sqlEmpty} OR l_language = ${sqlLang}";
+            $languagePattern = "${tableAlias}l_language = ${sqlEmpty} OR ${tableAlias}l_language = ${sqlLang}";
         }
         
         return $languagePattern;
     }
     
-    static public function buildUnionQuery($propertyQueries) {
-        
-        if (count($propertyQueries) === 0) {
-            return false;
-        } else if (count($propertyQueries) === 1) {
-            return $propertyQueries[0];
-        } else {
-            // Add parenthesis.
-            $finalPropertyQueries = array();
-            foreach ($propertyQueries as $query) {
-                $finalPropertyQueries[] = "(${query})";
-            }
-            
-            return implode(' UNION ALL ', $finalPropertyQueries);
-        }
-    }
-    
-    static public function buildFilterQuery(core_kernel_persistence_smoothsql_SmoothModel $model, $classUri, array $propertyFilters, $and = true, $like = true, $lang = '', $offset = 0, $limit = 0, $order = '', $orderDir = 'ASC')
+    static public function buildFilterQuery(SmoothModel $model, $classUri, array $propertyFilters, $and = true, $like = true, $lang = '', $offset = 0, $limit = 0, $order = '', $orderDir = 'ASC')
     {
+        $result = 'SELECT s.subject FROM statements s' . PHP_EOL;
         $persistence = $model->getPersistence();
-        
+
         // Deal with target classes.
         if (is_array($classUri) === false) {
-            $classUri = array($classUri);
-        }
-        
-        $propertyQueries = array(self::buildPropertyQuery($model, RDF_TYPE, $classUri, false));
-        foreach ($propertyFilters as $propertyUri => $filterValues) {
-            $propertyQueries[] = self::buildPropertyQuery($model, $propertyUri, $filterValues, $like, $lang);
-        }
-        
-        $unionQuery = self::buildUnionQuery($propertyQueries);
-        
-        if (($propCount = count($propertyFilters)) === 0) {
-            $query = self::buildPropertyQuery($model, RDF_TYPE, $classUri, false, $lang);
-        } else {
-            $unionCount = ($and === true) ? ($propCount + 1) : 2;
-            $query = "SELECT subject FROM (${unionQuery}) AS unionq GROUP BY subject HAVING count(*) >= ${unionCount}";
+            $classUri = [$classUri];
         }
 
-        // Order...
-        if (empty($order) === false) {
-            $orderPredicate = $persistence->quote($order);
-            
-            $sqlLang = '';
-            if (empty($lang) === false) {
-                $sqlEmptyLang = $persistence->quote('');
-                $sqlRequestedLang = $persistence->quote($lang);
-                $sqlLang = " AND (l_language = ${sqlEmptyLang} OR l_language = ${sqlRequestedLang})";
+        $whereQuery = self::buildWhereQuery($model, $classUri);
+
+        $filterNum = 1;
+        $propertyQueries = [];
+        foreach ($propertyFilters as $propertyUri => $filterValues) {
+            if ($and) {
+                $propertyQueries[] = self::buildFilterAnd($model, $propertyUri, $filterValues, $like, $lang, $filterNum);
+            } else {
+                $propertyQueries[] = self::buildFilterOr($model, $propertyUri, $filterValues, $like, $lang, $filterNum);
             }
-            
-            $sqlOrderFilter = "mainq.subject = orderq.subject AND predicate = ${orderPredicate}${sqlLang}";
-            
-            $query = "SELECT mainq.subject, orderq.object FROM (${query}) AS mainq JOIN ";
-            $query .= "statements AS orderq ON (${sqlOrderFilter}) ORDER BY orderq.object ${orderDir}";
+            $filterNum++;
         }
-        
-        // Limit...
+
+        if ($and) {
+            $filter = implode(PHP_EOL, $propertyQueries). PHP_EOL;
+        } else {
+            $filter = implode(' OR ' . PHP_EOL, $propertyQueries);
+            $filter = "INNER JOIN (" . PHP_EOL .
+                    "SELECT DISTINCT subject FROM statements" . PHP_EOL .
+                    "WHERE (" . $filter . ")) filterQuery ON filterQuery.subject = s.subject". PHP_EOL;
+        }
+
+        $orderJoin = '';
+        $orderStatement = '';
+        if ($order) {
+            $orderJoin = self::getOrderQuery($model, $order, $lang);
+            $orderStatement = " ORDER BY orderq.object $orderDir";
+        }
+
+
+        $result = $result . $filter . $orderJoin . $whereQuery . $orderStatement;
+
         if ($limit > 0) {
-            $query = $persistence->getPlatForm()->limitStatement($query, $limit, $offset);
+            $result = $persistence->getPlatForm()->limitStatement($result, $limit, $offset);
         }
-        
-        // Suffix order...
-        if (empty($order) === false) {
-            $query = "SELECT subject FROM (${query}) as rootq";
+
+        return $result;
+    }
+
+    static public function buildFilterOr(SmoothModel $model, $propertyUri, $values, $like, $lang = '', $filterNum = 0)
+    {
+        $persistence = $model->getPersistence();
+
+        $predicate = $persistence->quote($propertyUri);
+
+        if (is_array($values) === false) {
+            $values = [$values];
         }
-        
+
+        $valuePatterns = array();
+        foreach ($values as $val) {
+            $valuePatterns[] = "object " . self::buildSearchPattern($persistence, $val, $like);
+        }
+        $sqlValues = implode(' OR ', $valuePatterns);
+
+        $sqlLang = '';
+        if (empty($lang) === false) {
+            $sqlLang = ' AND (' . self::buildLanguagePattern($persistence, $lang) . ')';
+        }
+
+        $query = "(predicate=${predicate}" . PHP_EOL .
+            "AND (${sqlValues}${sqlLang}))";
+
         return $query;
+    }
+
+    static public function buildFilterAnd(SmoothModel $model, $propertyUri, $values, $like, $lang = '', $filterNum = 0)
+    {
+        $persistence = $model->getPersistence();
+
+        $predicate = $persistence->quote($propertyUri);
+
+        if (is_array($values) === false) {
+            $values = [$values];
+        }
+
+        $tableAlias = 's'.$filterNum;
+
+        $valuePatterns = array();
+        foreach ($values as $val) {
+            $valuePatterns[] = "${tableAlias}.object " . self::buildSearchPattern($persistence, $val, $like);
+        }
+
+        $sqlValues = implode(' OR ', $valuePatterns);
+
+        // Deal with language...
+        $sqlLang = '';
+        if (empty($lang) === false) {
+            $sqlLang = ' AND (' . self::buildLanguagePattern($persistence, $lang, $tableAlias) . ')';
+        }
+
+        $query = "INNER JOIN statements ${tableAlias}" . PHP_EOL .
+            "ON ${tableAlias}.subject = s.subject" . PHP_EOL .
+            "AND ${tableAlias}.predicate=${predicate}" . PHP_EOL .
+            "AND (${sqlValues}${sqlLang})";
+
+        return $query;
+    }
+
+    static public function getOrderQuery(SmoothModel $model, $order, $lang = '')
+    {
+        $persistence = $model->getPersistence();
+
+        $sqlLang = '';
+        if (empty($lang) === false) {
+            $sqlEmptyLang = $persistence->quote('');
+            $sqlRequestedLang = $persistence->quote($lang);
+            $sqlLang = " AND (orderq.l_language = ${sqlEmptyLang} OR orderq.l_language = ${sqlRequestedLang})";
+        }
+
+        $orderPredicate = $persistence->quote($order);
+
+        $sqlOrderFilter = "INNER JOIN statements AS orderq" . PHP_EOL .
+            "ON s.subject = orderq.subject" . PHP_EOL .
+            "AND orderq.predicate = ${orderPredicate}${sqlLang}" . PHP_EOL;
+
+        return $sqlOrderFilter;
     }
 }

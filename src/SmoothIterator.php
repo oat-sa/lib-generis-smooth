@@ -18,13 +18,18 @@
  *
  */
 
+namespace oat\generisSmooth;
+
+use \common_persistence_SqlPersistence;
+use \core_kernel_classes_Triple;
+
 /**
  * Iterator over all triples
  * 
  * @author joel bout <joel@taotesting.com>
  * @package generis
  */
-class core_kernel_persistence_smoothsql_SmoothIterator
+class SmoothIterator
     extends common_persistence_sql_QueryIterator
 {
     /**

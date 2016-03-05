@@ -18,7 +18,10 @@
  *
  */
 
+namespace oat\generisSmooth;
+
 use oat\generis\model\data\RdfsInterface;
+
 
 /**
  * Implementation of the RDFS interface for the smooth sql driver
@@ -26,15 +29,14 @@ use oat\generis\model\data\RdfsInterface;
  * @author joel bout <joel@taotesting.com>
  * @package generis
  */
-class core_kernel_persistence_smoothsql_SmoothRdfs
-    implements RdfsInterface
+class SmoothRdfs implements RdfsInterface
 {
     /**
-     * @var core_kernel_persistence_smoothsql_SmoothModel
+     * @var SmoothModel
      */
     private $model;
     
-    public function __construct(core_kernel_persistence_smoothsql_SmoothModel $model) {
+    public function __construct(SmoothModel $model) {
         $this->model = $model;
     }
     
@@ -43,7 +45,7 @@ class core_kernel_persistence_smoothsql_SmoothRdfs
      * @see \oat\generis\model\data\RdfsInterface::getClassImplementation()
      */
     public function getClassImplementation() {
-        return new \core_kernel_persistence_smoothsql_Class($this->model);
+        return new Clazz($this->model);
     }
     
     /**
@@ -51,7 +53,7 @@ class core_kernel_persistence_smoothsql_SmoothRdfs
      * @see \oat\generis\model\data\RdfsInterface::getResourceImplementation()
      */
     public function getResourceImplementation() {
-        return new \core_kernel_persistence_smoothsql_Resource($this->model);
+        return new Resource($this->model);
     }
     
     /**
@@ -59,7 +61,7 @@ class core_kernel_persistence_smoothsql_SmoothRdfs
      * @see \oat\generis\model\data\RdfsInterface::getPropertyImplementation()
      */
     public function getPropertyImplementation() {
-        return new  \core_kernel_persistence_smoothsql_Property($this->model);
+        return new  Property($this->model);
     }
     
 }
