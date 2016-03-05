@@ -20,7 +20,7 @@
  * 
  */
 
-namespace oat\generis\smooth;
+namespace oat\generisSmooth;
 
 use \core_kernel_classes_Resource;
 use \core_kernel_classes_Property;

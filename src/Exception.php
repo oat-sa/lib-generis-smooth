@@ -20,7 +20,7 @@
  * 
  */
 
-namespace oat\generis\smooth;
+namespace oat\generisSmooth;
 
 /**
  * Short description of class Exception

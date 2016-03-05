@@ -18,7 +18,7 @@
  *
  */
 
-namespace oat\generis\smooth;
+namespace oat\generisSmooth;
 
 use oat\generis\model\data\Model;
 use oat\oatbox\Configurable;
