@@ -20,7 +20,7 @@
  *               2012-2014 (update and modification) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
 
-namespace oat\generis\smooth;
+namespace oat\generisSmooth;
 
 use \core_kernel_classes_Resource;
 use \common_persistence_SqlPersistence;
