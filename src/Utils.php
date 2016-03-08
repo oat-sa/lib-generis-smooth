@@ -187,7 +187,7 @@ class Utils
                     if (!$wildcard && $object === '%') {
                         $object = '%%';
                     }
-                    $returnValue .= 'LIKE '. $persistence->quote($object);
+                    $returnValue .= 'LIKE LOWER('. $persistence->quote($object) . ')';
                 } else {
                     $returnValue .= '= '. $persistence->quote($patternToken);
                 }
@@ -301,7 +301,8 @@ class Utils
 
         $valuePatterns = array();
         foreach ($values as $val) {
-            $valuePatterns[] = "object " . self::buildSearchPattern($persistence, $val, $like);
+            $pattern = $like ? 'LOWER(object) ' : 'object ';
+            $valuePatterns[] = $pattern . self::buildSearchPattern($persistence, $val, $like);
         }
         $sqlValues = implode(' OR ', $valuePatterns);
 
@@ -330,7 +331,8 @@ class Utils
 
         $valuePatterns = array();
         foreach ($values as $val) {
-            $valuePatterns[] = "${tableAlias}.object " . self::buildSearchPattern($persistence, $val, $like);
+            $pattern = $like ? "LOWER(${tableAlias}.object) " : "${tableAlias}.object ";
+            $valuePatterns[] =  $pattern . self::buildSearchPattern($persistence, $val, $like);
         }
 
         $sqlValues = implode(' OR ', $valuePatterns);
