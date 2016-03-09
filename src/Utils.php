@@ -331,7 +331,11 @@ class Utils
 
         $valuePatterns = array();
         foreach ($values as $val) {
-            $pattern = $like ? "LOWER(${tableAlias}.object) " : "${tableAlias}.object ";
+            if ($like && !\common_Utils::isUri($val)) {
+                $pattern = "LOWER(${tableAlias}.object)";
+            } else {
+                $pattern = "${tableAlias}.object ";
+            }
             $valuePatterns[] =  $pattern . self::buildSearchPattern($persistence, $val, $like);
         }
 
