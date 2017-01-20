@@ -1,7 +1,7 @@
 {
 	"name": "oat-sa/lib-generis-smooth",
 	"description": "smooth implementation for generis",
-	"version": "1.0",
+	"version": "0.1",
 	"type": "library",
 	"authors": [
 		{
