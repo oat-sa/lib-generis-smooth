@@ -25,6 +25,7 @@ use oat\oatbox\Configurable;
 use oat\generis\model\data\ModelManager;
 use \common_Logger;
 use \common_exception_Error;
+use oat\oatbox\service\ServiceManager;
 
 /**
  * transitory model for the smooth sql implementation
@@ -39,7 +40,8 @@ class SmoothModel extends Configurable
     const OPTION_READABLE_MODELS = 'readable';
     const OPTION_WRITEABLE_MODELS = 'writeable';
     const OPTION_NEW_TRIPLE_MODEL = 'addTo';
-    
+    const OPTION_SEARCH_SERVICE = 'search';
+
     /**
      * Persistence to use for the smoothmodel
      * 
@@ -50,7 +52,25 @@ class SmoothModel extends Configurable
     private static $readableSubModels = null;
     
     private static $updatableSubModels = null;
-    
+
+    function getResource($uri) {
+        $resource = new \core_kernel_classes_Resource($uri);
+        $resource->setModel($this);
+        return $resource;
+    }
+
+    function getClass($uri) {
+        $class = new \core_kernel_classes_Class($uri);
+        $class->setModel($this);
+        return $class;
+    }
+
+    function getProperty($uri) {
+        $property = new \core_kernel_classes_Property($uri);
+        $property->setModel($this);
+        return $property;
+    }
+
     public function getPersistence() {
         if (is_null($this->persistence)) {
             $this->persistence = \common_persistence_SqlPersistence::getPersistence($this->getOption(self::OPTION_PERSISTENCE));
@@ -157,6 +177,15 @@ class SmoothModel extends Configurable
      */
     public static function forceReloadModelIds() {
         common_Logger::w('Call to deprecated '.__FUNCTION__.' no longer does anything');
+    }
+
+    /**
+     * @return ComplexSearchService
+     */
+    public function getSearchInterface() {
+        $search = ServiceManager::getServiceManager()->get($this->getOption(self::OPTION_SEARCH_SERVICE));
+        $search->setModel($this);
+        return $search;
     }
 
 }
