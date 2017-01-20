@@ -368,7 +368,7 @@ class Utils
 
         $orderPredicate = $persistence->quote($order);
 
-        $sqlOrderFilter = "INNER JOIN statements AS orderq" . PHP_EOL .
+        $sqlOrderFilter = "LEFT JOIN statements AS orderq" . PHP_EOL .
             "ON s.subject = orderq.subject" . PHP_EOL .
             "AND orderq.predicate = ${orderPredicate}${sqlLang}" . PHP_EOL;
 
