@@ -19,6 +19,7 @@
 		"forum": "http://forum.taotesting.com",
 		"issues": "http://forge.taotesting.com"
 	},
+	"minimum-stability" : "dev",
 	"keywords" : ["OAT", "TAO","generis"],
 	"homepage" : "http://www.taotesting.com",
 	"license" : [
