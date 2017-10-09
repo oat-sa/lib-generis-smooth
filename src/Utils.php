@@ -26,6 +26,8 @@ use \core_kernel_classes_Resource;
 use \common_persistence_SqlPersistence;
 use \core_kernel_classes_Literal;
 use \common_Logger;
+use oat\generis\model\OntologyRdf;
+
 /**
  * Utility class for package core\kernel\persistence\smoothsql.
  * 
@@ -206,7 +208,7 @@ class Utils
     static public function buildWhereQuery(SmoothModel $model, $class)
     {
         $persistence = $model->getPersistence();
-        $result = 'WHERE s.predicate = ' .$persistence->quote(RDF_TYPE) . PHP_EOL;
+        $result = 'WHERE s.predicate = ' .$persistence->quote(OntologyRdf::RDF_TYPE) . PHP_EOL;
 
         if (is_array($class) === false) {
             $class = [$class];

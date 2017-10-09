@@ -29,6 +29,9 @@ use \core_kernel_persistence_Exception;
 use \common_Utils;
 use \common_Exception;
 use \common_Logger;
+use oat\generis\model\OntologyRdf;
+use oat\generis\model\OntologyRdfs;
+use oat\generis\model\GenerisRdf;
 
 
 /**
@@ -47,7 +50,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
         $returnValue = array();
 
         $sqlQuery = 'SELECT subject FROM statements WHERE predicate = ? and '.$this->getPersistence()->getPlatForm()->getObjectTypeCondition() .' = ?';
-        $sqlResult = $this->getPersistence()->query($sqlQuery, array(RDFS_SUBCLASSOF, $resource->getUri()));
+        $sqlResult = $this->getPersistence()->query($sqlQuery, array(OntologyRdfs::RDFS_SUBCLASSOF, $resource->getUri()));
 
         while ($row = $sqlResult->fetch()) {
             $subClass = new core_kernel_classes_Class($row['subject']);
@@ -72,7 +75,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
         $query = 'SELECT object FROM statements WHERE subject = ? AND predicate = ? AND ' . $this->getPersistence()->getPlatForm()->getObjectTypeCondition() . ' = ?';
         $result = $this->getPersistence()->query($query, array(
             $resource->getUri(),
-            RDFS_SUBCLASSOF,
+            OntologyRdfs::RDFS_SUBCLASSOF,
             $parentClass->getUri()
         ));
 
@@ -104,16 +107,16 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
 
         $sqlQuery = 'SELECT object FROM statements WHERE subject = ?  AND predicate = ?';
 
-        $sqlResult = $this->getPersistence()->query($sqlQuery, array($resource->getUri(), RDFS_SUBCLASSOF));
+        $sqlResult = $this->getPersistence()->query($sqlQuery, array($resource->getUri(), OntologyRdfs::RDFS_SUBCLASSOF));
 
         while ($row = $sqlResult->fetch()){
 
             $parentClass = new core_kernel_classes_Class($row['object']);
 
             $returnValue[$parentClass->getUri()] = $parentClass ;
-            if ($recursive == true && $parentClass->getUri() != RDFS_CLASS && $parentClass->getUri() != RDFS_RESOURCE) {
-                if ($parentClass->getUri() == CLASS_GENERIS_RESOURCE) {
-                    $returnValue[RDFS_RESOURCE] = new core_kernel_classes_Class(RDFS_RESOURCE);
+            if ($recursive == true && $parentClass->getUri() != OntologyRdfs::RDFS_CLASS  && $parentClass->getUri() != OntologyRdfs::RDFS_RESOURCE) {
+                if ($parentClass->getUri() == GenerisRdf::CLASS_GENERIS_RESOURCE) {
+                    $returnValue[OntologyRdfs::RDFS_RESOURCE] = new core_kernel_classes_Class(OntologyRdfs::RDFS_RESOURCE);
                 } else {
                     $plop = $parentClass->getParentClasses(true);
                 	$returnValue = array_merge($returnValue, $plop);
@@ -134,7 +137,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
 
         $sqlQuery = 'SELECT subject FROM statements WHERE predicate = ?  AND '. $this->getPersistence()->getPlatForm()->getObjectTypeCondition() .' = ?';
         $sqlResult = $this->getPersistence()->query($sqlQuery, array(
-            RDFS_DOMAIN,
+            OntologyRdfs::RDFS_DOMAIN,
             $resource->getUri()
         ));
 
@@ -146,7 +149,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
         if ($recursive == true) {
             $parentClasses = $this->getParentClasses($resource, true);
             foreach ($parentClasses as $parent) {
-                if($parent->getUri() != RDFS_CLASS) {
+                if($parent->getUri() != OntologyRdfs::RDFS_CLASS ) {
                 	$returnValue = array_merge($returnValue, $parent->getProperties(false));
                 }
             }
@@ -201,7 +204,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
      */
     public function setSubClassOf( core_kernel_classes_Class $resource,  core_kernel_classes_Class $iClass)
     {
-        $subClassOf = new core_kernel_classes_Property(RDFS_SUBCLASSOF);
+        $subClassOf = new core_kernel_classes_Property(OntologyRdfs::RDFS_SUBCLASSOF);
         $returnValue = $this->setPropertyValue($resource, $subClassOf, $iClass->getUri());
 
         return (bool) $returnValue;
@@ -271,13 +274,13 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
         $uri = empty($uri) ? common_Utils::getNewUri() : $uri;
         $returnValue = new core_kernel_classes_Class($uri, __METHOD__);
         $properties = array(
-            RDFS_SUBCLASSOF => $resource,
+            OntologyRdfs::RDFS_SUBCLASSOF => $resource,
         );
         if (!empty($label)) {
-            $properties[RDFS_LABEL] = $label;
+            $properties[OntologyRdfs::RDFS_LABEL] = $label;
         }
         if (!empty($comment)) {
-            $properties[RDFS_COMMENT] = $comment;
+            $properties[OntologyRdfs::RDFS_COMMENT] = $comment;
         }
 
         $returnValue->setPropertiesValues($properties);
@@ -293,7 +296,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
         $returnValue = null;
 
 
-    	$property = new core_kernel_classes_Class(RDF_PROPERTY, __METHOD__);
+    	$property = new core_kernel_classes_Class(OntologyRdf::RDF_PROPERTY, __METHOD__);
 		$propertyInstance = $property->createInstance($label,$comment);
 		$returnValue = new core_kernel_classes_Property($propertyInstance->getUri(), __METHOD__);
 		$returnValue->setLgDependent($isLgDependent);
@@ -313,7 +316,7 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
     {
         $returnValue = array();
 
-        // Avoid a 'like' search on RDF_TYPE!
+        // Avoid a 'like' search on OntologyRdf::RDF_TYPE!
         if (count($propertyFilters) === 0) {
             $options = array_merge($options, array('like' => false));
         }
@@ -404,11 +407,11 @@ class Clazz extends Resource implements core_kernel_persistence_ClassInterface
     {
         $returnValue = null;
 
-        if (isset($properties[RDF_TYPE])) {
+        if (isset($properties[OntologyRdf::RDF_TYPE])) {
             throw new core_kernel_persistence_Exception('Additional types in createInstanceWithProperties not permited');
         }
 
-        $properties[RDF_TYPE] = $type;
+        $properties[OntologyRdf::RDF_TYPE] = $type;
 		$returnValue = new core_kernel_classes_Resource(common_Utils::getNewUri(), __METHOD__);
 		$returnValue->setPropertiesValues($properties);
 
