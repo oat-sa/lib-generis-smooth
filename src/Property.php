@@ -25,6 +25,9 @@ namespace oat\generisSmooth;
 use \core_kernel_classes_Resource;
 use \core_kernel_classes_Property;
 use \core_kernel_classes_Class;
+use oat\generis\model\OntologyRdf;
+use oat\generis\model\OntologyRdfs;
+use oat\generis\model\GenerisRdf;
 
 /**
  * Short description of class Property
@@ -133,7 +136,7 @@ class Property
      */
     public function setRange( core_kernel_classes_Resource $resource,  core_kernel_classes_Class $class)
     {
-        $rangeProp = new core_kernel_classes_Property(RDFS_RANGE, __METHOD__);
+        $rangeProp = new core_kernel_classes_Property(OntologyRdfs::RDFS_RANGE, __METHOD__);
         $returnValue = $this->setPropertyValue($resource, $rangeProp, $class->getUri());
         return $returnValue;
     }
@@ -149,8 +152,8 @@ class Property
      */
     public function setMultiple( core_kernel_classes_Resource $resource, $isMultiple)
     {
-        $multipleProperty = new core_kernel_classes_Property(PROPERTY_MULTIPLE);
-        $value = ((bool)$isMultiple) ?  GENERIS_TRUE : GENERIS_FALSE ;
+        $multipleProperty = new core_kernel_classes_Property(GenerisRdf::PROPERTY_MULTIPLE);
+        $value = ((bool)$isMultiple) ?  GenerisRdf::GENERIS_TRUE : GenerisRdf::GENERIS_FALSE ;
         $this->removePropertyValues($resource, $multipleProperty);
         $this->setPropertyValue($resource, $multipleProperty, $value);
     }
@@ -166,8 +169,8 @@ class Property
      */
     public function setLgDependent( core_kernel_classes_Resource $resource, $isLgDependent)
     {
-        $lgDependentProperty = new core_kernel_classes_Property(PROPERTY_IS_LG_DEPENDENT,__METHOD__);
-        $value = ((bool)$isLgDependent) ?  GENERIS_TRUE : GENERIS_FALSE ;
+        $lgDependentProperty = new core_kernel_classes_Property(GenerisRdf::PROPERTY_IS_LG_DEPENDENT,__METHOD__);
+        $value = ((bool)$isLgDependent) ?  GenerisRdf::GENERIS_TRUE : GenerisRdf::GENERIS_FALSE ;
         $this->removePropertyValues($resource, $lgDependentProperty);
         $this->setPropertyValue($resource, $lgDependentProperty, $value);
     }
