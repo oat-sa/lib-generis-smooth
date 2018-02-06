@@ -26,6 +26,8 @@ use \core_kernel_classes_Resource;
 use \common_persistence_SqlPersistence;
 use \core_kernel_classes_Literal;
 use \common_Logger;
+use oat\generis\model\OntologyRdf;
+
 /**
  * Utility class for package core\kernel\persistence\smoothsql.
  * 
@@ -187,7 +189,7 @@ class Utils
                     if (!$wildcard && $object === '%') {
                         $object = '%%';
                     }
-                    $returnValue .= 'LIKE '. $persistence->quote($object);
+                    $returnValue .= 'LIKE LOWER('. $persistence->quote($object) . ')';
                 } else {
                     $returnValue .= '= '. $persistence->quote($patternToken);
                 }
@@ -206,7 +208,7 @@ class Utils
     static public function buildWhereQuery(SmoothModel $model, $class)
     {
         $persistence = $model->getPersistence();
-        $result = 'WHERE s.predicate = ' .$persistence->quote(RDF_TYPE) . PHP_EOL;
+        $result = 'WHERE s.predicate = ' .$persistence->quote(OntologyRdf::RDF_TYPE) . PHP_EOL;
 
         if (is_array($class) === false) {
             $class = [$class];
@@ -301,7 +303,8 @@ class Utils
 
         $valuePatterns = array();
         foreach ($values as $val) {
-            $valuePatterns[] = "object " . self::buildSearchPattern($persistence, $val, $like);
+            $pattern = $like ? 'LOWER(object) ' : 'object ';
+            $valuePatterns[] = $pattern . self::buildSearchPattern($persistence, $val, $like);
         }
         $sqlValues = implode(' OR ', $valuePatterns);
 
@@ -330,7 +333,12 @@ class Utils
 
         $valuePatterns = array();
         foreach ($values as $val) {
-            $valuePatterns[] = "${tableAlias}.object " . self::buildSearchPattern($persistence, $val, $like);
+            if ($like && !\common_Utils::isUri($val)) {
+                $pattern = "LOWER(${tableAlias}.object)";
+            } else {
+                $pattern = "${tableAlias}.object ";
+            }
+            $valuePatterns[] =  $pattern . self::buildSearchPattern($persistence, $val, $like);
         }
 
         $sqlValues = implode(' OR ', $valuePatterns);

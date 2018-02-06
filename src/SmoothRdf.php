@@ -25,6 +25,7 @@ use oat\oatbox\service\ServiceManager;
 use oat\oatbox\event\EventManager;
 use oat\generis\model\data\event\ResourceCreated;
 use \core_kernel_classes_Resource;
+use oat\generis\model\OntologyRdf;
 
 /**
  * Implementation of the RDF interface for the smooth sql driver
@@ -65,7 +66,7 @@ class SmoothRdf implements RdfInterface
         }
         $query = "INSERT INTO statements ( modelId, subject, predicate, object, l_language, epoch) VALUES ( ? , ? , ? , ? , ? , ?);";
         $success = $this->getPersistence()->exec($query, array($triple->modelid, $triple->subject, $triple->predicate, $triple->object, is_null($triple->lg) ? '' : $triple->lg, $this->getPersistence()->getPlatForm()->getNowExpression()));
-        if ($triple->predicate == RDFS_SUBCLASSOF || $triple->predicate == RDF_TYPE) {
+        if ($triple->predicate == OntologyRdfs::RDFS_SUBCLASSOF || $triple->predicate == OntologyRdf::RDF_TYPE) {
             $eventManager = $this->getServiceManager()->get(EventManager::CONFIG_ID);
             $eventManager->trigger(new ResourceCreated(new core_kernel_classes_Resource($triple->subject)));
         }

@@ -30,7 +30,7 @@ use \core_kernel_classes_Triple;
  * @package generis
  */
 class SmoothIterator
-    extends common_persistence_sql_QueryIterator
+    extends \common_persistence_sql_QueryIterator
 {
     /**
      * Constructor of the iterator expecting the model ids
